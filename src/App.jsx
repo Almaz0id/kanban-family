@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, CheckSquare, Square, Trash2, Edit3, Settings, 
   Calendar, CheckCircle2, Circle, Sun, Home, Moon, X, 
-  ChevronRight, AlertCircle, RefreshCw, LogOut, User 
+  ChevronRight, AlertCircle, RefreshCw, LogOut, User, 
+  LayoutDashboard, Users, BarChart3, ShieldCheck 
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
-import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 
 // ==========================================
 // FIREBASE CONFIG & INITIALIZATION
@@ -110,7 +111,7 @@ function TaskModal({ task, isCreating, onClose, onSave, onDelete }) {
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -129,7 +130,7 @@ function TaskModal({ task, isCreating, onClose, onSave, onDelete }) {
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               placeholder="Что нужно сделать?"
-              className="w-full px-3.5 py-2.5 rounded-xl text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100"
+              className="w-full px-3.5 py-3 rounded-xl text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100"
               autoFocus
             />
           </div>
@@ -143,7 +144,7 @@ function TaskModal({ task, isCreating, onClose, onSave, onDelete }) {
               <select
                 value={form.section}
                 onChange={(e) => setForm({ ...form, section: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-100"
+                className="w-full px-3 py-3 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-100"
               >
                 <option value="morning">🌅 Утро</option>
                 <option value="day">🧹 Быт</option>
@@ -158,7 +159,7 @@ function TaskModal({ task, isCreating, onClose, onSave, onDelete }) {
               <select
                 value={form.priority || 'normal'}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-100"
+                className="w-full px-3 py-3 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-100"
               >
                 <option value="low">🟢 Обычный</option>
                 <option value="normal">🟡 Средний</option>
@@ -173,28 +174,28 @@ function TaskModal({ task, isCreating, onClose, onSave, onDelete }) {
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
                 Чек-лист подзадач ({(form.subtasks || []).length})
               </label>
-              <label className="flex items-center gap-1.5 text-[11px] text-slate-500 cursor-pointer">
+              <label className="flex items-center gap-1.5 text-xs text-slate-500 cursor-pointer py-1">
                 <input
                   type="checkbox"
                   checked={form.autoClose !== false}
                   onChange={(e) => setForm({ ...form, autoClose: e.target.checked })}
-                  className="w-3.5 h-3.5 rounded text-indigo-600"
+                  className="w-4 h-4 rounded text-indigo-600"
                 />
-                <span>Авто-закрытие задачи при 100%</span>
+                <span>Авто-закрытие при 100%</span>
               </label>
             </div>
 
             {(form.subtasks || []).length > 0 && (
-              <div className="space-y-1.5 mb-2.5 max-h-40 overflow-y-auto pr-1">
+              <div className="space-y-2 mb-3 max-h-40 overflow-y-auto pr-1">
                 {(form.subtasks || []).map((st) => (
                   <div
                     key={st.id}
-                    className="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs"
+                    className="flex items-center justify-between bg-white dark:bg-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs"
                   >
                     <button
                       type="button"
                       onClick={() => handleToggleSub(st.id)}
-                      className="flex items-center gap-2 text-left flex-1 hover:opacity-80 transition"
+                      className="flex items-center gap-2.5 text-left flex-1 hover:opacity-80 transition"
                     >
                       {st.completed ? (
                         <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -208,9 +209,9 @@ function TaskModal({ task, isCreating, onClose, onSave, onDelete }) {
                     <button
                       type="button"
                       onClick={() => handleRemoveSub(st.id)}
-                      className="text-slate-400 hover:text-rose-500 p-1"
+                      className="text-slate-400 hover:text-rose-500 p-2"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
@@ -223,11 +224,11 @@ function TaskModal({ task, isCreating, onClose, onSave, onDelete }) {
                 value={newSubtaskText}
                 onChange={(e) => setNewSubtaskText(e.target.value)}
                 placeholder="Добавить пошаговое действие..."
-                className="flex-1 px-3 py-1.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="flex-1 px-3.5 py-2.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <button
                 type="submit"
-                className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition"
+                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shrink-0"
               >
                 + Шаг
               </button>
@@ -236,13 +237,13 @@ function TaskModal({ task, isCreating, onClose, onSave, onDelete }) {
 
         </div>
 
-        {/* Modal Actions */}
-        <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+        {/* Modal Actions - Увеличенные отступы и кнопки для мобильных */}
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 pb-2 sm:pb-0">
           {!isCreating && onDelete ? (
             <button
               type="button"
               onClick={() => onDelete(form.id)}
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center gap-1.5 transition"
+              className="px-4 py-3 rounded-xl text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center gap-1.5 transition"
             >
               <Trash2 className="w-4 h-4" />
               <span>Удалить</span>
@@ -251,18 +252,18 @@ function TaskModal({ task, isCreating, onClose, onSave, onDelete }) {
             <div />
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="px-5 py-3 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
             >
               Отмена
             </button>
             <button
               type="button"
               onClick={() => onSave(form)}
-              className="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition"
+              className="px-6 py-3 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition"
             >
               Сохранить
             </button>
@@ -308,14 +309,14 @@ function TemplateModal({ items, onClose, onSave }) {
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-          Изменения зафиксируются в вашем ежедневном расписании. Каждый новый день будет автоматически создаваться с этими регулярными пунктами.
+          Каждый новый день будет автоматически создаваться с этими регулярными пунктами.
         </p>
 
         {/* List grouped by section */}
@@ -323,20 +324,20 @@ function TemplateModal({ items, onClose, onSave }) {
           {SECTIONS_META.map((sec) => {
             const secList = templateItems.filter((i) => i.section === sec.id);
             return (
-              <div key={sec.id} className="space-y-1.5">
+              <div key={sec.id} className="space-y-2">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{sec.title}</h4>
                 {secList.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/60 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs"
+                    className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/60 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs"
                   >
                     <span className="text-slate-700 dark:text-slate-200">{item.text}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveItem(item.id)}
-                      className="text-slate-400 hover:text-rose-500 p-1"
+                      className="text-slate-400 hover:text-rose-500 p-2"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
@@ -350,7 +351,7 @@ function TemplateModal({ items, onClose, onSave }) {
           <select
             value={newSection}
             onChange={(e) => setNewSection(e.target.value)}
-            className="px-2.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-100"
+            className="px-3 py-3 rounded-xl text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-100"
           >
             <option value="morning">🌅 Утро</option>
             <option value="day">🧹 Быт</option>
@@ -360,27 +361,27 @@ function TemplateModal({ items, onClose, onSave }) {
             type="text"
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
-            placeholder="Название нового регулярного дела..."
-            className="flex-1 px-3 py-2 rounded-xl text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"
+            placeholder="Новое регулярное дело..."
+            className="flex-1 px-3.5 py-3 rounded-xl text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"
           />
           <button
             type="submit"
-            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
+            className="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0"
           >
-            +
+            + Добавить
           </button>
         </form>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-3 pb-2 sm:pb-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500"
+            className="px-5 py-3 rounded-xl text-xs font-semibold text-slate-500"
           >
             Отмена
           </button>
           <button
             onClick={() => onSave(templateItems)}
-            className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md"
+            className="px-6 py-3 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md"
           >
             Сохранить шаблон
           </button>
@@ -397,6 +398,8 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().slice(0, 10));
+  const [activeTab, setActiveTab] = useState('kanban'); // 'kanban', 'analytics', 'settings'
+  
   const [tasks, setTasks] = useState([]);
   const [template, setTemplate] = useState(DEFAULT_TEMPLATE);
   
@@ -426,20 +429,19 @@ export default function App() {
     if (!user || !db) return;
 
     // Load template
-    const tplRef = doc(db, 'users', user.uid, 'settings', 'template');
+    const tplRef = doc(db, 'shared_board', 'family_template');
     getDoc(tplRef).then((snapshot) => {
       if (snapshot.exists() && snapshot.data().items) {
         setTemplate(snapshot.data().items);
       }
     });
 
-    // Listen to current date tasks
-    const dayRef = doc(db, 'users', user.uid, 'days', currentDate);
+    // Listen to current date tasks (Shared family board)
+    const dayRef = doc(db, 'shared_board_days', currentDate);
     const unsubscribe = onSnapshot(dayRef, (snapshot) => {
       if (snapshot.exists()) {
         setTasks(snapshot.data().tasks || []);
       } else {
-        // Init day with template if empty
         const initialTasks = DEFAULT_TEMPLATE.map((t, idx) => ({
           id: `init_${idx}_${Date.now()}`,
           title: t.text,
@@ -456,11 +458,10 @@ export default function App() {
     return () => unsubscribe();
   }, [user, currentDate]);
 
-  // Save tasks helper
   const saveTasksToFirebase = async (newTasks) => {
     setTasks(newTasks);
-    if (!user || !db) return;
-    const dayRef = doc(db, 'users', user.uid, 'days', currentDate);
+    if (!db) return;
+    const dayRef = doc(db, 'shared_board_days', currentDate);
     await setDoc(dayRef, { tasks: newTasks }, { merge: true });
   };
 
@@ -491,8 +492,8 @@ export default function App() {
   const handleSaveTemplate = async (newItems) => {
     setTemplate(newItems);
     setIsTemplateModalOpen(false);
-    if (!user || !db) return;
-    const tplRef = doc(db, 'users', user.uid, 'settings', 'template');
+    if (!db) return;
+    const tplRef = doc(db, 'shared_board', 'family_template');
     await setDoc(tplRef, { items: newItems }, { merge: true });
   };
 
@@ -504,30 +505,38 @@ export default function App() {
     );
   }
 
+  // Calculate statistics for analytics tab
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(t => t.completed).length;
+  const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans pb-24 md:pb-6">
       {/* Header */}
       <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400">
+          <div className="p-2.5 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="font-bold text-base">Семейный Канбан</h1>
+            <h1 className="font-bold text-base flex items-center gap-2">
+              Семейный Канбан
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Общий доступ</span>
+            </h1>
             <p className="text-xs text-slate-400">План на день и регулярные задачи</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <input
             type="date"
             value={currentDate}
             onChange={(e) => setCurrentDate(e.target.value)}
-            className="px-3 py-1.5 rounded-xl text-xs bg-slate-800 border border-slate-700 font-medium text-slate-200 focus:outline-none"
+            className="px-3.5 py-2 rounded-xl text-xs bg-slate-800 border border-slate-700 font-medium text-slate-200 focus:outline-none"
           />
           <button
             onClick={() => setIsTemplateModalOpen(true)}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition"
+            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition"
             title="Настройка шаблона"
           >
             <Settings className="w-4 h-4" />
@@ -535,102 +544,203 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Board Layout */}
-      <main className="flex-1 p-4 max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-4">
-        {SECTIONS_META.map((sec) => {
-          const sectionTasks = tasks.filter((t) => t.section === sec.id);
-          const Icon = sec.icon;
+      {/* Main Content Area */}
+      <main className="flex-1 p-4 max-w-7xl mx-auto w-full">
+        {activeTab === 'kanban' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {SECTIONS_META.map((sec) => {
+              const sectionTasks = tasks.filter((t) => t.section === sec.id);
+              const Icon = sec.icon;
 
-          return (
-            <div
-              key={sec.id}
-              className="bg-slate-900/60 rounded-3xl p-4 border border-slate-800/80 flex flex-col"
-            >
-              <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
-                <div className="flex items-center gap-2">
-                  <div className={`p-2 rounded-xl ${sec.bg} ${sec.color}`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <h2 className="font-bold text-sm">{sec.title}</h2>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-semibold">
-                    {sectionTasks.length}
-                  </span>
-                </div>
-                <button
-                  onClick={() => {
-                    setEditingTask({ section: sec.id, subtasks: [], autoClose: true, priority: 'normal', title: '' });
-                    setIsCreatingTask(true);
-                  }}
-                  className="p-1.5 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 transition"
+              return (
+                <div
+                  key={sec.id}
+                  className="bg-slate-900/60 rounded-3xl p-4 border border-slate-800/80 flex flex-col"
                 >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Tasks List */}
-              <div className="space-y-2.5 flex-1 overflow-y-auto">
-                {sectionTasks.length === 0 ? (
-                  <div className="text-center py-8 text-xs text-slate-500">
-                    Нет задач в этом разделе
-                  </div>
-                ) : (
-                  sectionTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className={`p-3 rounded-2xl border transition flex flex-col gap-2 bg-slate-900/90 ${
-                        task.completed
-                          ? 'border-emerald-500/20 opacity-60'
-                          : 'border-slate-800 hover:border-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleTask(task.id)}
-                          className="flex items-start gap-2.5 text-left flex-1"
-                        >
-                          {task.completed ? (
-                            <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                          ) : (
-                            <Square className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-                          )}
-                          <span
-                            className={`text-xs font-medium leading-relaxed ${
-                              task.completed ? 'line-through text-slate-400' : 'text-slate-200'
-                            }`}
-                          >
-                            {task.title}
-                          </span>
-                        </button>
-                        
-                        <button
-                          onClick={() => {
-                            setEditingTask(task);
-                            setIsCreatingTask(false);
-                          }}
-                          className="text-slate-500 hover:text-slate-300 p-1"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
+                  <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-2.5 rounded-xl ${sec.bg} ${sec.color}`}>
+                        <Icon className="w-4 h-4" />
                       </div>
-
-                      {/* Subtasks progress indicator if any */}
-                      {(task.subtasks || []).length > 0 && (
-                        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pl-6">
-                          <span>Шаги:</span>
-                          <span className="font-semibold text-indigo-400">
-                            {task.subtasks.filter((st) => st.completed).length} / {task.subtasks.length}
-                          </span>
-                        </div>
-                      )}
+                      <h2 className="font-bold text-sm">{sec.title}</h2>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 font-semibold">
+                        {sectionTasks.length}
+                      </span>
                     </div>
-                  ))
-                )}
+                    <button
+                      onClick={() => {
+                        setEditingTask({ section: sec.id, subtasks: [], autoClose: true, priority: 'normal', title: '' });
+                        setIsCreatingTask(true);
+                      }}
+                      className="p-2 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 transition"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Tasks List */}
+                  <div className="space-y-2.5 flex-1 overflow-y-auto">
+                    {sectionTasks.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-slate-500">
+                        Нет задач в этом разделе
+                      </div>
+                    ) : (
+                      sectionTasks.map((task) => (
+                        <div
+                          key={task.id}
+                          className={`p-3.5 rounded-2xl border transition flex flex-col gap-2.5 bg-slate-900/90 ${
+                            task.completed
+                              ? 'border-emerald-500/20 opacity-60'
+                              : 'border-slate-800 hover:border-slate-700'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleTask(task.id)}
+                              className="flex items-start gap-3 text-left flex-1 py-0.5"
+                            >
+                              {task.completed ? (
+                                <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                              ) : (
+                                <Square className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+                              )}
+                              <span
+                                className={`text-xs font-medium leading-relaxed ${
+                                  task.completed ? 'line-through text-slate-400' : 'text-slate-200'
+                                }`}
+                              >
+                                {task.title}
+                              </span>
+                            </button>
+                            
+                            <button
+                              onClick={() => {
+                                setEditingTask(task);
+                                setIsCreatingTask(false);
+                              }}
+                              className="text-slate-500 hover:text-slate-300 p-2"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          {/* Subtasks progress indicator if any */}
+                          {(task.subtasks || []).length > 0 && (
+                            <div className="flex items-center gap-1.5 text-[11px] text-slate-400 pl-7">
+                              <span>Шаги:</span>
+                              <span className="font-semibold text-indigo-400">
+                                {task.subtasks.filter((st) => st.completed).length} / {task.subtasks.length}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {activeTab === 'analytics' && (
+          <div className="max-w-xl mx-auto space-y-4 py-4">
+            <div className="bg-slate-900/60 rounded-3xl p-6 border border-slate-800">
+              <h2 className="font-bold text-base mb-4 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-indigo-400" />
+                Прогресс выполнения за {currentDate}
+              </h2>
+
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-xs mb-1.5 font-medium">
+                    <span className="text-slate-400">Выполнено задач</span>
+                    <span className="text-slate-200">{completedTasks} из {totalTasks} ({progressPercent}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5 border border-slate-700/50">
+                    <div 
+                      className="bg-indigo-500 h-full rounded-full transition-all duration-500" 
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800">
+                  <div className="p-4 rounded-2xl bg-slate-800/40 border border-slate-800">
+                    <p className="text-xs text-slate-400 mb-1">Всего задач</p>
+                    <p className="text-2xl font-bold text-slate-100">{totalTasks}</p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-slate-800/40 border border-slate-800">
+                    <p className="text-xs text-slate-400 mb-1">Завершено</p>
+                    <p className="text-2xl font-bold text-emerald-400">{completedTasks}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          );
-        })}
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="max-w-xl mx-auto space-y-4 py-4">
+            <div className="bg-slate-900/60 rounded-3xl p-6 border border-slate-800">
+              <h2 className="font-bold text-base mb-2 flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                Статус синхронизации
+              </h2>
+              <p className="text-xs text-slate-400 mb-4">
+                Приложение подключено к общей базе данных Firebase. Все изменения мгновенно синхронизируются на всех устройствах.
+              </p>
+              <button
+                onClick={() => setIsTemplateModalOpen(true)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition"
+              >
+                <Settings className="w-4 h-4 text-emerald-400" />
+                <span>Настроить шаблон ежедневных задач</span>
+              </button>
+            </div>
+          </div>
+        )}
       </main>
+
+      {/* FIXED BOTTOM NAVIGATION BAR - Поднято выше и увеличены кнопки для мобильных */}
+      <nav className="fixed bottom-4 left-4 right-4 z-30 max-w-md mx-auto bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-2 shadow-2xl flex items-center justify-around">
+        <button
+          onClick={() => setActiveTab('kanban')}
+          className={`flex-1 flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition ${
+            activeTab === 'kanban' 
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 font-bold' 
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <LayoutDashboard className="w-5 h-5" />
+          <span className="text-[11px]">Канбан</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('analytics')}
+          className={`flex-1 flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition ${
+            activeTab === 'analytics' 
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 font-bold' 
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <BarChart3 className="w-5 h-5" />
+          <span className="text-[11px]">Аналитика</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`flex-1 flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition ${
+            activeTab === 'settings' 
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 font-bold' 
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Settings className="w-5 h-5" />
+          <span className="text-[11px]">Настройки</span>
+        </button>
+      </nav>
 
       {/* Modals */}
       {editingTask && (
