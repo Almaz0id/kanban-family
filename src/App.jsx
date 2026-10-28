@@ -63,22 +63,49 @@ import {
 // ==========================================
 // FIREBASE CONFIG & INITIALIZATION
 // ==========================================
+const env = import.meta.env;
+const appId = env.VITE_DATA_NAMESPACE || 'kanban-almaz';
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: env.VITE_FIREBASE_API_KEY?.trim(),
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN?.trim(),
+  projectId: env.VITE_FIREBASE_PROJECT_ID?.trim(),
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET?.trim(),
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID?.trim(),
+  appId: env.VITE_FIREBASE_APP_ID?.trim()
 };
-
+const requiredConfig = ['apiKey', 'authDomain', 'projectId', 'appId'];
+const missingConfig = requiredConfig.filter(key => !firebaseConfig[key]);
 let app, auth, db;
-try {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
-} catch (e) {
-  console.error("Firebase init error:", e);
+let firebaseInitError = missingConfig.length
+  ? `Не заполнена конфигурация Firebase: ${missingConfig.join(', ')}. Добавьте VITE_FIREBASE_* в Vercel и выполните Redeploy.`
+  : '';
+if (!firebaseInitError) {
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch (error) {
+    firebaseInitError = `${error.code || 'Firebase'}: ${error.message}`;
+    console.error('Firebase initialization:', error);
+  }
+}
+
+function ConnectionError({ message }) {
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-5">
+      <section role="alert" className="w-full max-w-xl rounded-2xl border border-rose-500/40 bg-slate-900 p-6 space-y-4">
+        <h1 className="text-xl font-bold">Не удалось подключить Firebase</h1>
+        <p className="text-sm text-rose-300 break-words">{message}</p>
+        <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-300">
+          <li>Скопируйте конфигурацию Web app из Firebase → Project settings → General.</li>
+          <li>Добавьте переменные VITE_FIREBASE_* в Vercel → Settings → Environment Variables.</li>
+          <li>Включите Anonymous в Firebase Authentication → Sign-in method.</li>
+          <li>После изменения переменных выполните Redeploy в Vercel.</li>
+        </ol>
+        <button onClick={() => window.location.reload()} className="rounded-xl bg-indigo-600 px-4 py-2">Повторить</button>
+      </section>
+    </main>
+  );
 }
 // ==========================================
 // CONSTANTS & CONFIGURATION
@@ -470,9 +497,11 @@ const getInitialSampleTasks = (familyCode) => {
 };
 
 export default function App() {
+  const [authError, setAuthError] = useState('');
   // Auth & Sync State
   const [user, setUser] = useState(null);
-  const [familyCode, setFamilyCode] = useState('ALMAZ-KAMILLA-1');
+  const [familyCode, setFamilyCode] = useState(() => localStorage.getItem('lifeos-family') || 'ALMAZ-KAMILLA-1');
+  useEffect(() => { localStorage.setItem('lifeos-family', familyCode); }, [familyCode]);
   const [tempFamilyCode, setTempFamilyCode] = useState('ALMAZ-KAMILLA-1');
   const [showShareModal, setShowShareModal] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -481,7 +510,8 @@ export default function App() {
   // 'kanban' | 'quick_form' | 'calendar' | 'family' | 'shopping' | 'maintenance' | 'widget_dev'
   const [activeTab, setActiveTab] = useState('kanban');
   const [widgetSubTab, setWidgetSubTab] = useState('widget'); // 'widget' | 'dev'
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('lifeos-theme') !== 'light');
+  useEffect(() => { localStorage.setItem('lifeos-theme', darkMode ? 'dark' : 'light'); }, [darkMode]);
   const [toast, setToast] = useState(null);
 
   // Kanban State
@@ -590,24 +620,20 @@ export default function App() {
     return `${m}:${s}`;
   };
 
-  // 1. Firebase Auth Effect (RULE 3)
+  // Authentication is initialized only when the Firebase config is valid.
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (err) {
-        console.error('Auth error:', err);
-      }
-    };
-    initAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    if (!auth || firebaseInitError) return;
+    let disposed = false;
+    const unsubscribe = onAuthStateChanged(auth, currentUser => {
+      if (!disposed) setUser(currentUser);
+    }, error => {
+      if (!disposed) setAuthError(`${error.code}: ${error.message}`);
     });
-    return () => unsubscribe();
+    signInAnonymously(auth).catch(error => {
+      console.error('Authentication:', error);
+      if (!disposed) setAuthError(`${error.code}: ${error.message}`);
+    });
+    return () => { disposed = true; unsubscribe(); };
   }, []);
 
   // 2. Firestore Real-Time Listeners (RULE 1 & RULE 2)
@@ -1399,6 +1425,10 @@ export default function App() {
     { id: 'maintenance', label: '🔧 Регламент и ТО', shortLabel: 'ТО дома', icon: Wrench, activeColor: 'text-orange-600 dark:text-orange-400' },
     { id: 'widget_dev', label: '📱 Виджет & Код', shortLabel: 'Виджет', icon: Smartphone, activeColor: 'text-cyan-600 dark:text-cyan-400' }
   ];
+
+  if (firebaseInitError || authError) {
+    return <ConnectionError message={firebaseInitError || authError} />;
+  }
 
   return (
     <div className={darkMode ? 'dark' : ''}>
